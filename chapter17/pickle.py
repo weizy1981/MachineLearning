@@ -1,6 +1,8 @@
 from pandas import read_csv
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from pickle import dump
+from pickle import load
 # 导入数据
 filename = 'pima_data.csv'
 names = ['preg', 'plas', 'pres', 'skin', 'test', 'mass', 'pedi', 'age', 'class']
@@ -16,5 +18,13 @@ X_train, X_test, Y_traing, Y_test = train_test_split(X, Y, test_size=test_size, 
 model = LogisticRegression()
 model.fit(X_train, Y_traing)
 
-result = model.score(X_test, Y_test)
-print("算法评估结果：%.3f%%" % (result * 100))
+# 保存模型
+model_file = 'finalized_model.sav'
+with open(model_file, 'wb') as model_f:
+    dump(model, model_f)
+
+# 加载模型
+with open(model_file, 'rb') as model_f:
+    loaded_model = load(model_f)
+    result = loaded_model.score(X_test, Y_test)
+    print("算法评估结果：%.3f%%" % (result * 100))
