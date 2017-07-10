@@ -27,4 +27,14 @@ from sklearn.metrics import mean_squared_error
 filename = 'housing.csv'
 names = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS',
          'RAD', 'TAX', 'PRTATIO', 'B', 'LSTAT', 'MEDV']
-data = read_csv(filename, names=names, delim_whitespace=True)
+dataset = read_csv(filename, names=names, delim_whitespace=True)
+
+# 数据维度
+print(dataset.shape)
+
+# 特征熟悉的字段类型
+print(dataset.dtypes)
+
+# 查看最开始的30条记录
+set_option('display.line_width', 120)
+print(dataset.head(30))
