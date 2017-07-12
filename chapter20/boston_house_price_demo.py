@@ -28,7 +28,7 @@ filename = 'housing.csv'
 names = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS',
          'RAD', 'TAX', 'PRTATIO', 'B', 'LSTAT', 'MEDV']
 dataset = read_csv(filename, names=names, delim_whitespace=True)
-'''
+
 # 数据维度
 print(dataset.shape)
 
@@ -74,7 +74,7 @@ ax.set_yticks(ticks)
 ax.set_xticklabels(names)
 ax.set_yticklabels(names)
 pyplot.show()
-'''
+
 # 分离数据集
 array = dataset.values
 X = array[:, 0:13]
@@ -87,7 +87,7 @@ X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y,test_size=v
 num_folds = 10
 seed = 7
 scoring = 'neg_mean_squared_error'
-'''
+
 # 评估算法 - baseline
 models = {}
 models['LR'] = LinearRegression()
@@ -148,7 +148,7 @@ cv_results = zip(grid_result.cv_results_['mean_test_score'],
                  grid_result.cv_results_['params'])
 for mean, std, param in cv_results:
     print('%f (%f) with %r' % (mean, std, param))
-'''
+
 # 集成算法
 ensembles = {}
 ensembles['ScaledAB'] = Pipeline([('Scaler', StandardScaler()), ('AB', AdaBoostRegressor())])
