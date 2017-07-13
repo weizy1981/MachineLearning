@@ -153,10 +153,37 @@ for mean, std, param in cv_results:
 ensembles = {}
 ensembles['ScaledAB'] = Pipeline([('Scaler', StandardScaler()), ('AB', AdaBoostRegressor())])
 ensembles['ScaledAB-KNN'] = Pipeline([('Scaler', StandardScaler()),
-                                       ('AB', AdaBoostRegressor(base_estimator=KNeighborsRegressor(n_neighbors=3)))])
+                                       ('ABKNN', AdaBoostRegressor(base_estimator=KNeighborsRegressor(n_neighbors=3)))])
+ensembles['ScaledLR'] = Pipeline([('Scaler', StandardScaler()), ('ABLR', LinearRegression())])
+ensembles['ScaledRFR'] = Pipeline([('Scaler', StandardScaler()), ('RFR', RandomForestRegressor())])
+ensembles['ScaledETR'] = Pipeline([('Scaler', StandardScaler()), ('ETR', ExtraTreesRegressor())])
+ensembles['ScaledGBR'] = Pipeline([('Scaler', StandardScaler()), ('RBR', GradientBoostingRegressor())])
+
 results = []
 for key in ensembles:
     kfold = KFold(n_splits=num_folds, random_state=seed)
     cv_result = cross_val_score(ensembles[key], X_train, Y_train, cv=kfold, scoring=scoring)
     results.append(cv_result)
     print('%s: %f (%f)' % (key, cv_result.mean(), cv_result.std()))
+
+# 集成算法GBR - 调参
+caler = StandardScaler().fit(X_train)
+rescaledX = scaler.transform(X_train)
+param_grid = {'n_estimators': [10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900]}
+model = GradientBoostingRegressor()
+kfold = KFold(n_splits=num_folds, random_state=seed)
+grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
+grid_result = grid.fit(X=rescaledX, y=Y_train)
+
+print('最优：%s 使用%s' % (grid_result.best_score_, grid_result.best_params_))
+cv_results = zip(grid_result.cv_results_['mean_test_score'],
+                 grid_result.cv_results_['std_test_score'],
+                 grid_result.cv_results_['params'])
+for mean, std, param in cv_results:
+    print('%f (%f) with %r' % (mean, std, param))
+
+#使用评估数据集评估算法
+gbr = GradientBoostingRegressor(n_estimators=500)
+gbr.fit(X=X_train, y=Y_train)
+predictions = gbr.predict(X_validation)
+print(mean_squared_error(Y_validation, predictions))
