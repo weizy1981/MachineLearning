@@ -154,7 +154,7 @@ ensembles = {}
 ensembles['ScaledAB'] = Pipeline([('Scaler', StandardScaler()), ('AB', AdaBoostRegressor())])
 ensembles['ScaledAB-KNN'] = Pipeline([('Scaler', StandardScaler()),
                                        ('ABKNN', AdaBoostRegressor(base_estimator=KNeighborsRegressor(n_neighbors=3)))])
-ensembles['ScaledLR'] = Pipeline([('Scaler', StandardScaler()), ('ABLR', LinearRegression())])
+ensembles['ScaledAB-LR'] = Pipeline([('Scaler', StandardScaler()), ('ABLR', AdaBoostRegressor(LinearRegression()))])
 ensembles['ScaledRFR'] = Pipeline([('Scaler', StandardScaler()), ('RFR', RandomForestRegressor())])
 ensembles['ScaledETR'] = Pipeline([('Scaler', StandardScaler()), ('ETR', ExtraTreesRegressor())])
 ensembles['ScaledGBR'] = Pipeline([('Scaler', StandardScaler()), ('RBR', GradientBoostingRegressor())])
@@ -166,24 +166,40 @@ for key in ensembles:
     results.append(cv_result)
     print('%s: %f (%f)' % (key, cv_result.mean(), cv_result.std()))
 
-# 集成算法GBR - 调参
-caler = StandardScaler().fit(X_train)
+# 集成算法 - 箱线图
+fig = pyplot.figure()
+fig.suptitle('Algorithm Comparison')
+ax = fig.add_subplot(111)
+pyplot.boxplot(results)
+ax.set_xticklabels(ensembles.keys())
+pyplot.show()
+
+# 集成算法GBM - 调参
+scaler = StandardScaler().fit(X_train)
 rescaledX = scaler.transform(X_train)
 param_grid = {'n_estimators': [10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900]}
 model = GradientBoostingRegressor()
 kfold = KFold(n_splits=num_folds, random_state=seed)
 grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
 grid_result = grid.fit(X=rescaledX, y=Y_train)
-
 print('最优：%s 使用%s' % (grid_result.best_score_, grid_result.best_params_))
-cv_results = zip(grid_result.cv_results_['mean_test_score'],
-                 grid_result.cv_results_['std_test_score'],
-                 grid_result.cv_results_['params'])
-for mean, std, param in cv_results:
-    print('%f (%f) with %r' % (mean, std, param))
 
-#使用评估数据集评估算法
-gbr = GradientBoostingRegressor(n_estimators=500)
-gbr.fit(X=X_train, y=Y_train)
-predictions = gbr.predict(X_validation)
+# 集成算法ET - 调参
+scaler = StandardScaler().fit(X_train)
+rescaledX = scaler.transform(X_train)
+param_grid = {'n_estimators': [5, 10, 20, 30, 40, 50, 60, 70, 80]}
+model = ExtraTreesRegressor()
+kfold = KFold(n_splits=num_folds, random_state=seed)
+grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
+grid_result = grid.fit(X=rescaledX, y=Y_train)
+print('最优：%s 使用%s' % (grid_result.best_score_, grid_result.best_params_))
+
+#训练模型
+scaler = StandardScaler().fit(X_train)
+rescaledX = scaler.transform(X_train)
+gbr = ExtraTreesRegressor(n_estimators=80)
+gbr.fit(X=rescaledX, y=Y_train)
+# 评估算法模型
+rescaledX_validation = scaler.transform(X_validation)
+predictions = gbr.predict(rescaledX_validation)
 print(mean_squared_error(Y_validation, predictions))
