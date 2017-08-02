@@ -1,6 +1,7 @@
 # 字典
 mydict = {'a': 6.18, 'b': 'str', 'c': True}
 print('A value: %.2f' % mydict['a'])
+# 增加字典元素
 mydict['a'] = 523
 print('A value: %d' % mydict['a'])
 print('keys: %s' % mydict.keys())
