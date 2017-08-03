@@ -27,6 +27,7 @@ X_reduce = pca.fit_transform(scale(X_scale))
 model = KMeans(n_clusters=3)
 model.fit(X_reduce)
 labels = model.labels_
+centers = model.cluster_centers_
 #print(labels)
 
 # 输出模型的准确度
@@ -42,4 +43,5 @@ print('%.3f   %.3f   %.3f   %.3f   %.3f    %.3f' %(
 fig = plt.figure()
 ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=48, azim=134)
 ax.scatter(X_reduce[:, 0], X_reduce[:, 1], X_reduce[:, 2], c=labels.astype(np.float))
+ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2], marker='*', color='black')
 plt.show()
