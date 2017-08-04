@@ -45,5 +45,5 @@ print('%.3f   %.3f   %.3f   %.3f   %.3f    %.3f' %(
 fig = plt.figure()
 ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=48, azim=134)
 ax.scatter(X_reduce[:, 0], X_reduce[:, 1], X_reduce[:, 2], c=labels.astype(np.float))
-ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2], marker='*', color='black')
+ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2], marker='*', color='red')
 plt.show()
