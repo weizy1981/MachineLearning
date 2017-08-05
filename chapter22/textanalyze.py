@@ -119,3 +119,11 @@ for key in ensembles:
     cv_results = cross_val_score(ensembles[key], X_train_counts, dataset_train.target, cv=kfold, scoring=scoring)
     results.append(cv_results)
     print('%s : %f (%f)' % (key, cv_results.mean(), cv_results.std()))
+
+# 箱线图比较算法
+fig = plt.figure()
+fig.suptitle('Algorithm Comparision')
+ax = fig.add_subplot(111)
+plt.boxplot(results)
+ax.set_xticklabels(ensembles.keys())
+plt.show()
