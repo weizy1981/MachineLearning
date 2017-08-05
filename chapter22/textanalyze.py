@@ -88,13 +88,22 @@ ax = fig.add_subplot(111)
 plt.boxplot(results)
 ax.set_xticklabels(models.keys())
 plt.show()
-'''
+
 # 4）算法调参
+# 调参LR
 param_grid = {}
-param_grid['C'] = [1, 1.5, 2, 2.5, 3, 3.5, 4]
+param_grid['C'] = [0.1, 5, 13, 15]
 model = LogisticRegression()
 kfold = KFold(n_splits=num_folds, random_state=seed)
 grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
 grid_result = grid.fit(X=X_train_counts, y=dataset_train.target)
 print('最优 : %s 使用 %s' % (grid_result.best_score_, grid_result.best_params_))
-
+'''
+# 调参MNB
+param_grid = {}
+param_grid['alpha'] = [0.01, 0.1, 0.5, 1.5]
+model = MultinomialNB()
+kfold = KFold(n_splits=num_folds, random_state=seed)
+grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
+grid_result = grid.fit(X=X_train_counts, y=dataset_train.target)
+print('最优 : %s 使用 %s' % (grid_result.best_score_, grid_result.best_params_))
