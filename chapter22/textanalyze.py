@@ -14,6 +14,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
+from matplotlib import pyplot as plt
 
 # 1) 导入数据
 categories = ['alt.atheism',
@@ -78,3 +79,11 @@ for key in models:
     cv_results = cross_val_score(models[key], X_train_counts, dataset_train.target, cv=kfold, scoring=scoring)
     results.append(cv_results)
     print('%s : %f (%f)' % (key, cv_results.mean(), cv_results.std()))
+
+# 箱线图比较算法
+fig = plt.figure()
+fig.suptitle('Algorithm Comparision')
+ax = fig.add_subplot(111)
+plt.boxplot(results)
+ax.set_xticklabels(models.keys())
+plt.show()
