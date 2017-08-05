@@ -27,6 +27,9 @@ X_reduce = pca.fit_transform(scale(X_scale))
 model = KMeans(n_clusters=3)
 model.fit(X_reduce)
 labels = model.labels_
+centers = model.cluster_centers_
+inertias = model.inertia_
+print(centers)
 #print(labels)
 
 # 输出模型的准确度
