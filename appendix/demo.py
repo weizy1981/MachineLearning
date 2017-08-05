@@ -28,8 +28,7 @@ model = KMeans(n_clusters=3)
 model.fit(X_reduce)
 labels = model.labels_
 centers = model.cluster_centers_
-inertias = model.inertia_
-print(centers)
+print(model.transform(X_reduce))
 #print(labels)
 
 # 输出模型的准确度
@@ -39,10 +38,12 @@ print('%.3f   %.3f   %.3f   %.3f   %.3f    %.3f' %(
     metrics.v_measure_score(y, labels),
     metrics.adjusted_rand_score(y, labels),
     metrics.adjusted_mutual_info_score(y,  labels),
+    # 轮廓到中心的距离
     metrics.silhouette_score(X_reduce, labels)))
 
 # 绘制模型的分布图
 fig = plt.figure()
 ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=48, azim=134)
 ax.scatter(X_reduce[:, 0], X_reduce[:, 1], X_reduce[:, 2], c=labels.astype(np.float))
+ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2], marker='*', color='red')
 plt.show()
