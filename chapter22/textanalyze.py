@@ -7,8 +7,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_score
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import KFold
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import AdaBoostClassifier
@@ -44,18 +44,18 @@ test_path = '20news-bydate-test'
 dataset_test = load_files(container_path=test_path, categories=categories)
 
 # 2）数据准备与理解
-'''
+
 # 计算词频
 count_vect = CountVectorizer(stop_words='english', decode_error='ignore')
-X_train_TF_counts = count_vect.fit_transform(dataset_train.data)
-# 查看数据维度
-print(X_train_TF_counts.shape)
-'''
-# 计算TF-IDF
-tf_transformer = TfidfVectorizer(stop_words='english', decode_error='ignore')
-X_train_counts = tf_transformer.fit_transform(dataset_train.data)
+X_train_counts = count_vect.fit_transform(dataset_train.data)
 # 查看数据维度
 print(X_train_counts.shape)
+
+# 计算TF-IDF
+tf_transformer = TfidfVectorizer(stop_words='english', decode_error='ignore')
+X_train_counts_tf = tf_transformer.fit_transform(dataset_train.data)
+# 查看数据维度
+print(X_train_counts_tf.shape)
 
 
 # 设置评估算法的基准
@@ -63,7 +63,7 @@ num_folds = 10
 seed = 7
 scoring = 'accuracy'
 
-'''
+
 # 3）评估算法
 # 生成算法模型
 models = {}
@@ -77,7 +77,7 @@ models['KNN'] = KNeighborsClassifier()
 results = []
 for key in models:
     kfold = KFold(n_splits=num_folds, random_state=seed)
-    cv_results = cross_val_score(models[key], X_train_counts, dataset_train.target, cv=kfold, scoring=scoring)
+    cv_results = cross_val_score(models[key], X_train_counts_tf, dataset_train.target, cv=kfold, scoring=scoring)
     results.append(cv_results)
     print('%s : %f (%f)' % (key, cv_results.mean(), cv_results.std()))
 
@@ -96,7 +96,7 @@ param_grid['C'] = [0.1, 5, 13, 15]
 model = LogisticRegression()
 kfold = KFold(n_splits=num_folds, random_state=seed)
 grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
-grid_result = grid.fit(X=X_train_counts, y=dataset_train.target)
+grid_result = grid.fit(X=X_train_counts_tf, y=dataset_train.target)
 print('最优 : %s 使用 %s' % (grid_result.best_score_, grid_result.best_params_))
 
 # 调参MNB
@@ -105,7 +105,7 @@ param_grid['alpha'] = [0.001, 0.01, 0.1, 1.5]
 model = MultinomialNB()
 kfold = KFold(n_splits=num_folds, random_state=seed)
 grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
-grid_result = grid.fit(X=X_train_counts, y=dataset_train.target)
+grid_result = grid.fit(X=X_train_counts_tf, y=dataset_train.target)
 print('最优 : %s 使用 %s' % (grid_result.best_score_, grid_result.best_params_))
 
 # 5）集成算法
@@ -116,7 +116,7 @@ ensembles['AB'] = AdaBoostClassifier()
 results = []
 for key in ensembles:
     kfold = KFold(n_splits=num_folds, random_state=seed)
-    cv_results = cross_val_score(ensembles[key], X_train_counts, dataset_train.target, cv=kfold, scoring=scoring)
+    cv_results = cross_val_score(ensembles[key], X_train_counts_tf, dataset_train.target, cv=kfold, scoring=scoring)
     results.append(cv_results)
     print('%s : %f (%f)' % (key, cv_results.mean(), cv_results.std()))
 
@@ -127,12 +127,20 @@ ax = fig.add_subplot(111)
 plt.boxplot(results)
 ax.set_xticklabels(ensembles.keys())
 plt.show()
-'''
+
 # 调参RF
 param_grid = {}
-param_grid['n_estimators'] = [5, 10, 20, 30, 40]
+param_grid['n_estimators'] = [10, 100, 150, 200]
 model = RandomForestClassifier()
 kfold = KFold(n_splits=num_folds, random_state=seed)
 grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
-grid_result = grid.fit(X=X_train_counts, y=dataset_train.target)
+grid_result = grid.fit(X=X_train_counts_tf, y=dataset_train.target)
 print('最优 : %s 使用 %s' % (grid_result.best_score_, grid_result.best_params_))
+
+# 6）生成模型
+model = LogisticRegression(C=13)
+model.fit(X_train_counts_tf, dataset_train.target)
+X_test_counts = tf_transformer.transform(dataset_test.data)
+predictions = model.predict(X_test_counts)
+print(accuracy_score(dataset_test.target, predictions))
+print(classification_report(dataset_test.target, predictions))
