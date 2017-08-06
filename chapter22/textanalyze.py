@@ -107,7 +107,7 @@ kfold = KFold(n_splits=num_folds, random_state=seed)
 grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
 grid_result = grid.fit(X=X_train_counts, y=dataset_train.target)
 print('最优 : %s 使用 %s' % (grid_result.best_score_, grid_result.best_params_))
-'''
+
 # 5）集成算法
 ensembles = {}
 ensembles['RF'] = RandomForestClassifier()
@@ -127,3 +127,12 @@ ax = fig.add_subplot(111)
 plt.boxplot(results)
 ax.set_xticklabels(ensembles.keys())
 plt.show()
+'''
+# 调参RF
+param_grid = {}
+param_grid['n_estimators'] = [5, 10, 20, 30, 40]
+model = RandomForestClassifier()
+kfold = KFold(n_splits=num_folds, random_state=seed)
+grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
+grid_result = grid.fit(X=X_train_counts, y=dataset_train.target)
+print('最优 : %s 使用 %s' % (grid_result.best_score_, grid_result.best_params_))
