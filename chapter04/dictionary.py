@@ -8,3 +8,15 @@ print('keys: %s' % mydict.keys())
 print('values: %s' % mydict.values())
 for key in mydict:
     print(mydict[key])
+
+
+mydict = {'a': 6.18, 'b': 'str', 'c': True}
+# 删除特定元素
+mydict.pop('a')
+print(mydict)
+# 删除字典的全部元素
+mydict.clear()
+print(mydict)
+
+
+
