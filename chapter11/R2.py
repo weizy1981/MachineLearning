@@ -17,4 +17,4 @@ kfold = KFold(n_splits=n_splits, random_state=seed)
 model = LinearRegression()
 scoring = 'r2'
 result = cross_val_score(model, X, Y, cv=kfold, scoring=scoring)
-print('MSE: %.3f (%.3f)' % (result.mean(), result.std()))
+print('R2: %.3f (%.3f)' % (result.mean(), result.std()))
